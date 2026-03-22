@@ -17,3 +17,5 @@ Sajda is a modern Islamic mobile application designed to support daily spiritual
 
 ## Status
 In development 🚧
+## Development
+Initial setup completed.
