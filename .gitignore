@@ -1,0 +1,42 @@
+# General
+.DS_Store
+Thumbs.db
+
+# Android
+.gradle/
+local.properties
+/build
+**/build/
+
+# Android Studio
+.idea/
+*.iml
+
+# Kotlin
+*.class
+
+# Logs
+*.log
+
+# iOS
+DerivedData/
+build/
+*.xcworkspace
+*.xcuserdata
+
+# CocoaPods (ileride kullanırsan)
+Pods/
+
+# Swift
+*.swiftmodule
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+
+# Mac
+*.xcuserstate
+
+# Environment
+.env
