@@ -1,42 +1,41 @@
 # General
 .DS_Store
 Thumbs.db
+*.log
+.env
 
 # Android
-.gradle/
-local.properties
+.gradle
+/local.properties
 /build
 **/build/
+.externalNativeBuild
+.cxx
+/captures
 
 # Android Studio
 .idea/
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
 *.iml
 
-# Kotlin
+# Kotlin / Java
 *.class
-
-# Logs
-*.log
 
 # iOS
 DerivedData/
+Pods/
 build/
 *.xcworkspace
 *.xcuserdata
-
-# CocoaPods (ileride kullanırsan)
-Pods/
-
-# Swift
 *.swiftmodule
 
 # Xcode
 *.pbxuser
 *.mode1v3
 *.mode2v3
-
-# Mac
 *.xcuserstate
-
-# Environment
-.env
