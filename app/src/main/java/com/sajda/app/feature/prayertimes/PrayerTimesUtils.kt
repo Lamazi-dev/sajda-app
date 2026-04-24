@@ -1,8 +1,18 @@
 package com.sajda.app.feature.prayertimes
-
 import java.time.Duration
 import java.time.LocalTime
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+fun findTodayPrayerTimes(today: LocalDate): PrayerTimes {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM, EEEE", Locale("tr"))
+
+    val todayDisplayDate = today.format(formatter)
+
+    return prayerTimesDataSource.firstOrNull { it.date == todayDisplayDate }
+        ?: prayerTimesDataSource.first()
+}
 fun getCurrentPrayer(
     prayerTimes: PrayerTimes,
     now: LocalTime

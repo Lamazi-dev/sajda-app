@@ -43,7 +43,7 @@ fun PrayerTimesScreen() {
             )
         }
 
-        itemsIndexed(mockPrayerTimesList) { _, prayerTimes ->
+        itemsIndexed(prayerTimesDataSource) { _, prayerTimes ->
             val isToday = prayerTimes.date == todayDisplayDate
 
             PrayerDayCard(

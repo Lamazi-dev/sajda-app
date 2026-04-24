@@ -72,3 +72,4 @@ val mockPrayerTimesList = listOf(
         isha = "21:18"
     )
 )
+val prayerTimesDataSource = mockPrayerTimesList

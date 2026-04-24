@@ -40,7 +40,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
+import com.sajda.app.feature.prayertimes.findTodayPrayerTimes
 @Composable
 fun TodayScreen() {
     var now by remember { mutableStateOf(LocalDateTime.now()) }
@@ -126,17 +126,7 @@ fun PrayerHeroCard(now: LocalDateTime) {
         PrayerTimeUiItem(stringResource(R.string.prayer_maghrib), todayPrayerTimes.maghrib),
         PrayerTimeUiItem(stringResource(R.string.prayer_isha), todayPrayerTimes.isha)
     )
-
-    val activePrayerLabel = when (currentPrayer.name) {
-        "Fajr" -> stringResource(R.string.prayer_fajr)
-        "Sunrise" -> stringResource(R.string.prayer_sunrise)
-        "Dhuhr" -> stringResource(R.string.prayer_dhuhr)
-        "Asr" -> stringResource(R.string.prayer_asr)
-        "Maghrib" -> stringResource(R.string.prayer_maghrib)
-        "Isha" -> stringResource(R.string.prayer_isha)
-        else -> currentPrayer.name
-    }
-
+    val activePrayerLabel = mapPrayerNameToLabel(currentPrayer.name)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -213,16 +203,6 @@ fun PrayerHeroCard(now: LocalDateTime) {
         }
     }
 }
-
-fun findTodayPrayerTimes(today: LocalDate): PrayerTimes {
-    val formatter = DateTimeFormatter.ofPattern("d MMMM, EEEE", Locale("tr"))
-
-    val todayDisplayDate = today.format(formatter)
-
-    return mockPrayerTimesList.firstOrNull { it.date == todayDisplayDate }
-        ?: mockPrayerTimesList.first()
-}
-
 @Composable
 fun AyahCard() {
     Card(
@@ -333,3 +313,15 @@ data class PrayerTimeUiItem(
     val name: String,
     val time: String
 )
+@Composable
+fun mapPrayerNameToLabel(name: String): String {
+    return when (name) {
+        "Fajr" -> stringResource(R.string.prayer_fajr)
+        "Sunrise" -> stringResource(R.string.prayer_sunrise)
+        "Dhuhr" -> stringResource(R.string.prayer_dhuhr)
+        "Asr" -> stringResource(R.string.prayer_asr)
+        "Maghrib" -> stringResource(R.string.prayer_maghrib)
+        "Isha" -> stringResource(R.string.prayer_isha)
+        else -> name
+    }
+}
