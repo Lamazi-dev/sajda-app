@@ -1,38 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sajda</string>
-
+    <string name="share_hadith">Hadisi Paylaş</string>
     <string name="nav_home">Ana Sayfa</string>
     <string name="nav_quran">Kuran</string>
     <string name="nav_qibla">Pusula</string>
     <string name="nav_prayer_times">İmsakiye</string>
     <string name="nav_settings">Ayarlar</string>
-
-    <string name="daily_ayah">Günün Ayeti</string>
-    <string name="daily_hadith">Günün Hadisi</string>
+    <string name="ayah_number">Ayet %1$d</string>
     <string name="continue_reading">Kaldığın Yerden Devam Et</string>
     <string name="tap_to_continue">Devam etmek için dokun</string>
     <string name="surahs">Sureler</string>
     <string name="reader_content_coming_soon">Okuyucu içeriği yakında eklenecek</string>
     <string name="reader_content_next_step">Bu surenin okuyucu içeriği bir sonraki adımda eklenecek.</string>
-    <string name="back">Geri</string>
-
     <string name="next_prayer">Sonraki Vakit</string>
-
+    <string name="daily_ayah">Vaktin Ayeti</string>
+    <string name="daily_hadith">Vaktin Hadisi</string>
     <string name="fajr">İmsak</string>
     <string name="sun">Güneş</string>
     <string name="dhuhr">Öğle</string>
     <string name="asr">İkindi</string>
     <string name="maghrib">Akşam</string>
     <string name="isha">Yatsı</string>
-
+    <string name="back">← Geri</string>
     <string name="prayer_fajr">İmsak</string>
     <string name="prayer_sunrise">Güneş</string>
     <string name="prayer_dhuhr">Öğle</string>
     <string name="prayer_asr">İkindi</string>
     <string name="prayer_maghrib">Akşam</string>
     <string name="prayer_isha">Yatsı</string>
-
+    <string name="share_ayah">Ayeti Paylaş</string>
     <string name="ayah_range">Ayet %1$d-%2$d</string>
     <string name="prayer_times_title">İmsakiye</string>
+    <string name="favorite_ayahs">Favori Ayetler</string>
+    <string name="favorite_ayahs_subtitle">Kaydettiğin ayetlere hızlıca dön</string>
+    <string name="no_favorite_ayahs_yet">Henüz favori ayet yok</string>
+    <string name="favorite_ayahs_empty_subtitle">Beğendiğin ayetleri kalp ikonuyla buraya ekleyebilirsin.</string>
+    <string name="surah_ayah_label">%1$s • Ayet %2$d</string>
+    <string name="favorite_hadiths">Favori Hadisler</string>
 </resources>

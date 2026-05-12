@@ -1,6 +1,7 @@
 package com.sajda.app.feature.today
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,20 +30,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sajda.app.R
-import com.sajda.app.feature.prayertimes.PrayerTimes
+import com.sajda.app.feature.prayertimes.PrayerName
+import com.sajda.app.feature.prayertimes.findTodayPrayerTimes
 import com.sajda.app.feature.prayertimes.formatDurationAsHourMinute
 import com.sajda.app.feature.prayertimes.getCurrentPrayer
-import com.sajda.app.feature.prayertimes.getNextPrayer
 import com.sajda.app.feature.prayertimes.getRemainingDurationUntilNextPrayer
-import com.sajda.app.feature.prayertimes.mockPrayerTimesList
+import com.sajda.app.feature.prayertimes.toPrayerTimeItems
+import com.sajda.app.feature.prayertimes.toUiLabel
 import kotlinx.coroutines.delay
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
-import com.sajda.app.feature.prayertimes.findTodayPrayerTimes
+
 @Composable
-fun TodayScreen() {
+fun TodayScreen(
+    onDailyAyahClick: (surahNumber: Int, ayahNumber: Int) -> Unit,
+    onDailyHadithClick: () -> Unit
+) {
     var now by remember { mutableStateOf(LocalDateTime.now()) }
 
     LaunchedEffect(Unit) {
@@ -52,13 +55,8 @@ fun TodayScreen() {
         }
     }
 
-    val currentClock = now.format(
-        DateTimeFormatter.ofPattern("HH:mm")
-    )
-
-    val currentDate = now.format(
-        DateTimeFormatter.ofPattern("dd MMMM yyyy")
-    )
+    val currentClock = now.format(DateTimeFormatter.ofPattern("HH:mm"))
+    val currentDate = now.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
 
     Column(
         modifier = Modifier
@@ -87,16 +85,29 @@ fun TodayScreen() {
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-
+        val todayPrayerTimes = findTodayPrayerTimes(now.toLocalDate())
+        val currentPrayer = getCurrentPrayer(todayPrayerTimes, now.toLocalTime())
+        val currentContent = getContentForPrayer(currentPrayer.name)
         PrayerHeroCard(now = now)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        AyahCard()
+        AyahCard(
+            ayah = currentContent.ayah,
+            onClick = {
+                onDailyAyahClick(
+                    currentContent.ayah.surahNumber,
+                    currentContent.ayah.ayahNumber
+                )
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        HadithCard()
+        HadithCard(
+            hadith = currentContent.hadith,
+            onClick = onDailyHadithClick
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -105,28 +116,28 @@ fun TodayScreen() {
 @Composable
 fun PrayerHeroCard(now: LocalDateTime) {
     val todayPrayerTimes = findTodayPrayerTimes(now.toLocalDate())
-
     val currentTime = now.toLocalTime()
 
     val currentPrayer = getCurrentPrayer(todayPrayerTimes, currentTime)
-    val nextPrayer = getNextPrayer(todayPrayerTimes, currentTime)
     val remainingDuration = getRemainingDurationUntilNextPrayer(todayPrayerTimes, currentTime)
     val formattedTime = formatDurationAsHourMinute(remainingDuration)
 
     val secondsPart = String.format(
+        java.util.Locale.getDefault(),
         ":%02d",
         remainingDuration.seconds % 60
     )
 
-    val prayerTimesRow = listOf(
-        PrayerTimeUiItem(stringResource(R.string.prayer_fajr), todayPrayerTimes.fajr),
-        PrayerTimeUiItem(stringResource(R.string.prayer_sunrise), todayPrayerTimes.sunrise),
-        PrayerTimeUiItem(stringResource(R.string.prayer_dhuhr), todayPrayerTimes.dhuhr),
-        PrayerTimeUiItem(stringResource(R.string.prayer_asr), todayPrayerTimes.asr),
-        PrayerTimeUiItem(stringResource(R.string.prayer_maghrib), todayPrayerTimes.maghrib),
-        PrayerTimeUiItem(stringResource(R.string.prayer_isha), todayPrayerTimes.isha)
-    )
-    val activePrayerLabel = mapPrayerNameToLabel(currentPrayer.name)
+    val prayerTimesRow = todayPrayerTimes.toPrayerTimeItems().map { prayer ->
+        PrayerTimeUiItem(
+            name = prayer.name,
+            label = prayer.name.toUiLabel(),
+            time = prayer.time
+        )
+    }
+
+    val activePrayerLabel = currentPrayer.name.toUiLabel()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -194,19 +205,27 @@ fun PrayerHeroCard(now: LocalDateTime) {
             ) {
                 prayerTimesRow.forEach { prayer ->
                     PrayerTimeItem(
-                        name = prayer.name,
+                        name = prayer.label,
                         time = prayer.time,
-                        isActive = prayer.name == activePrayerLabel
+                        isActive = prayer.name == currentPrayer.name
                     )
                 }
             }
         }
     }
 }
+
 @Composable
-fun AyahCard() {
+fun AyahCard(
+    ayah: DailyAyah,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -226,7 +245,7 @@ fun AyahCard() {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Al-Kahf 96",
+                text = "${ayah.surahName} ${ayah.ayahNumber}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
@@ -234,7 +253,7 @@ fun AyahCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "\"Bring me blocks of iron,\" he said.",
+                text = ayah.translation,
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color(0xFF1F2A24),
                 lineHeight = 26.sp
@@ -244,9 +263,16 @@ fun AyahCard() {
 }
 
 @Composable
-fun HadithCard() {
+fun HadithCard(
+    hadith: DailyHadith,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -266,7 +292,7 @@ fun HadithCard() {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Prophet Muhammad (ﷺ)",
+                text = hadith.source,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
@@ -274,7 +300,7 @@ fun HadithCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "\"The best among you are those who have the best manners.\"",
+                text = hadith.text,
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color(0xFF1F2A24),
                 lineHeight = 26.sp
@@ -310,18 +336,7 @@ fun PrayerTimeItem(
 }
 
 data class PrayerTimeUiItem(
-    val name: String,
+    val name: PrayerName,
+    val label: String,
     val time: String
 )
-@Composable
-fun mapPrayerNameToLabel(name: String): String {
-    return when (name) {
-        "Fajr" -> stringResource(R.string.prayer_fajr)
-        "Sunrise" -> stringResource(R.string.prayer_sunrise)
-        "Dhuhr" -> stringResource(R.string.prayer_dhuhr)
-        "Asr" -> stringResource(R.string.prayer_asr)
-        "Maghrib" -> stringResource(R.string.prayer_maghrib)
-        "Isha" -> stringResource(R.string.prayer_isha)
-        else -> name
-    }
-}

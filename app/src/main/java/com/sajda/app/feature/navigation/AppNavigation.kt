@@ -10,11 +10,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sajda.app.feature.prayertimes.PrayerTimesScreen
+import com.sajda.app.feature.prayertimes.findTodayPrayerTimes
+import com.sajda.app.feature.prayertimes.getCurrentPrayer
 import com.sajda.app.feature.qibla.QiblaScreen
+import com.sajda.app.feature.quran.FavoriteAyahsScreen
 import com.sajda.app.feature.quran.QuranReaderScreen
 import com.sajda.app.feature.quran.QuranScreen
 import com.sajda.app.feature.settings.SettingsScreen
+import com.sajda.app.feature.today.HadithDetailScreen
 import com.sajda.app.feature.today.TodayScreen
+import com.sajda.app.feature.today.getContentForPrayer
+import java.time.LocalDateTime
 
 @Composable
 fun AppNavigation() {
@@ -38,8 +44,38 @@ fun AppNavigation() {
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding)
         ) {
+
+
+            composable(Routes.FAVORITE_AYAHS) {
+                FavoriteAyahsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onAyahClick = { surahNumber, ayahNumber ->
+                        navController.navigate(
+                            Routes.quranReaderRoute(
+                                surahNumber = surahNumber,
+                                ayahNumber = ayahNumber
+                            )
+                        )
+                    }
+                )
+            }
+
             composable(Routes.HOME) {
-                TodayScreen()
+                TodayScreen(
+                    onDailyAyahClick = { surahNumber, ayahNumber ->
+                        navController.navigate(
+                            Routes.quranReaderRoute(
+                                surahNumber = surahNumber,
+                                ayahNumber = ayahNumber
+                            )
+                        )
+                    },
+                    onDailyHadithClick = {
+                        navController.navigate(Routes.HADITH_DETAIL)
+                    }
+                )
             }
 
             composable(Routes.QURAN) {
@@ -54,10 +90,17 @@ fun AppNavigation() {
                 val surahNumber =
                     backStackEntry.arguments?.getString("surahNumber")?.toIntOrNull() ?: 1
 
+                val ayahNumber =
+                    backStackEntry.arguments?.getString("ayahNumber")?.toIntOrNull() ?: 1
+
                 QuranReaderScreen(
                     surahNumber = surahNumber,
+                    initialSelectedAyahNumber = ayahNumber,
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onFavoriteAyahsClick = {
+                        navController.navigate(Routes.FAVORITE_AYAHS)
                     }
                 )
             }
@@ -72,6 +115,20 @@ fun AppNavigation() {
 
             composable(Routes.SETTINGS) {
                 SettingsScreen()
+            }
+
+            composable(Routes.HADITH_DETAIL) {
+                val now = LocalDateTime.now()
+                val todayPrayerTimes = findTodayPrayerTimes(now.toLocalDate())
+                val currentPrayer = getCurrentPrayer(todayPrayerTimes, now.toLocalTime())
+                val currentContent = getContentForPrayer(currentPrayer.name)
+
+                HadithDetailScreen(
+                    hadith = currentContent.hadith,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

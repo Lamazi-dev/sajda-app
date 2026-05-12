@@ -1,75 +1,64 @@
 package com.sajda.app.feature.prayertimes
+
 import java.time.Duration
-import java.time.LocalTime
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 fun findTodayPrayerTimes(today: LocalDate): PrayerTimes {
     val formatter = DateTimeFormatter.ofPattern("d MMMM, EEEE", Locale("tr"))
-
     val todayDisplayDate = today.format(formatter)
 
     return prayerTimesDataSource.firstOrNull { it.date == todayDisplayDate }
         ?: prayerTimesDataSource.first()
 }
+
 fun getCurrentPrayer(
     prayerTimes: PrayerTimes,
     now: LocalTime
 ): PrayerTimeItem {
-    val parsed = prayerTimes.toPrayerTimeItems().map { item ->
-        item to LocalTime.parse(item.time)
-    }
+    val parsedPrayerTimes = prayerTimes.toParsedPrayerTimes()
 
-    for (i in parsed.indices) {
-        val current = parsed[i]
-        val next = parsed.getOrNull(i + 1)
+    for (index in 0 until parsedPrayerTimes.lastIndex) {
+        val current = parsedPrayerTimes[index]
+        val next = parsedPrayerTimes[index + 1]
 
-        if (next != null) {
-            val currentTime = current.second
-            val nextTime = next.second
-
-            if (!now.isBefore(currentTime) && now.isBefore(nextTime)) {
-                return current.first
-            }
+        if (!now.isBefore(current.time) && now.isBefore(next.time)) {
+            return current.item
         }
     }
 
-    // Yatsı sonrası ve imsak öncesi aralığı
-    return parsed.last().first
+    return parsedPrayerTimes.last().item
 }
 
 fun getNextPrayer(
     prayerTimes: PrayerTimes,
     now: LocalTime
 ): PrayerTimeItem {
-    val parsed = prayerTimes.toPrayerTimeItems().map { item ->
-        item to LocalTime.parse(item.time)
-    }
+    val parsedPrayerTimes = prayerTimes.toParsedPrayerTimes()
 
-    for (item in parsed) {
-        if (now.isBefore(item.second)) {
-            return item.first
-        }
-    }
-
-    // Gün bitince ertesi günün ilk vakti
-    return parsed.first().first
+    return parsedPrayerTimes.firstOrNull { parsedPrayer ->
+        now.isBefore(parsedPrayer.time)
+    }?.item ?: parsedPrayerTimes.first().item
 }
 
 fun getRemainingDurationUntilNextPrayer(
     prayerTimes: PrayerTimes,
     now: LocalTime
 ): Duration {
-    val nextPrayer = getNextPrayer(prayerTimes, now)
-    val nextPrayerTime = LocalTime.parse(nextPrayer.time)
+    val parsedPrayerTimes = prayerTimes.toParsedPrayerTimes()
 
-    return if (now.isBefore(nextPrayerTime)) {
+    val nextPrayerTime = parsedPrayerTimes.firstOrNull { parsedPrayer ->
+        now.isBefore(parsedPrayer.time)
+    }?.time
+
+    return if (nextPrayerTime != null) {
         Duration.between(now, nextPrayerTime)
     } else {
-        val secondsUntilMidnight = Duration.between(now, LocalTime.MAX).seconds + 1
-        val secondsAfterMidnight = Duration.between(LocalTime.MIDNIGHT, nextPrayerTime).seconds
-        Duration.ofSeconds(secondsUntilMidnight + secondsAfterMidnight)
+        Duration.between(now, LocalTime.MAX)
+            .plusSeconds(1)
+            .plus(Duration.between(LocalTime.MIDNIGHT, parsedPrayerTimes.first().time))
     }
 }
 
@@ -78,5 +67,24 @@ fun formatDurationAsHourMinute(duration: Duration): String {
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
 
-    return String.format("%02d:%02d", hours, minutes)
+    return String.format(
+        Locale.getDefault(),
+        "%02d:%02d",
+        hours,
+        minutes
+    )
 }
+
+private fun PrayerTimes.toParsedPrayerTimes(): List<ParsedPrayerTime> {
+    return toPrayerTimeItems().map { item ->
+        ParsedPrayerTime(
+            item = item,
+            time = LocalTime.parse(item.time)
+        )
+    }
+}
+
+private data class ParsedPrayerTime(
+    val item: PrayerTimeItem,
+    val time: LocalTime
+)

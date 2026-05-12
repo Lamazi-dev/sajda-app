@@ -17,11 +17,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sajda.app.R
-
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Favorite
 @Composable
 fun QuranReaderHeader(
     surahName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onMenuClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -43,10 +51,49 @@ fun QuranReaderHeader(
             fontWeight = FontWeight.SemiBold
         )
 
-        Text(
-            text = " ",
-            color = Color.Transparent,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        if (onMenuClick != null) {
+            var expanded by remember { mutableStateOf(false) }
+
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = "menu",
+                tint = Color.White,
+                modifier = Modifier.clickable {
+                    expanded = true
+                }
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = Color(0xFF7DD3A7)
+                            )
+
+                            Text(
+                                text = stringResource(R.string.favorite_ayahs)
+                            )
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        onMenuClick()
+                    }
+                )
+            }
+        } else {
+            Text(
+                text = " ",
+                color = Color.Transparent
+            )
+        }
     }
 }

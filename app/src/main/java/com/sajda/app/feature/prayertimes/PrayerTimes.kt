@@ -12,17 +12,17 @@ data class PrayerTimes(
 )
 
 data class PrayerTimeItem(
-    val name: String,
+    val name: PrayerName,
     val time: String
 )
 
 fun PrayerTimes.toPrayerTimeItems(): List<PrayerTimeItem> {
     return listOf(
-        PrayerTimeItem(name = "Fajr", time = fajr),
-        PrayerTimeItem(name = "Sunrise", time = sunrise),
-        PrayerTimeItem(name = "Dhuhr", time = dhuhr),
-        PrayerTimeItem(name = "Asr", time = asr),
-        PrayerTimeItem(name = "Maghrib", time = maghrib),
-        PrayerTimeItem(name = "Isha", time = isha)
+        PrayerTimeItem(name = PrayerName.FAJR, time = fajr),
+        PrayerTimeItem(name = PrayerName.SUNRISE, time = sunrise),
+        PrayerTimeItem(name = PrayerName.DHUHR, time = dhuhr),
+        PrayerTimeItem(name = PrayerName.ASR, time = asr),
+        PrayerTimeItem(name = PrayerName.MAGHRIB, time = maghrib),
+        PrayerTimeItem(name = PrayerName.ISHA, time = isha)
     )
 }
