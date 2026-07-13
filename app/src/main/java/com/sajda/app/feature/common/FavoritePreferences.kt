@@ -21,6 +21,11 @@ class FavoritePreferences(
             preferences[favoriteKeys] ?: emptySet()
         }
 
+    fun isFavoriteFlow(key: String): Flow<Boolean> =
+        favoriteKeysFlow.map { favoriteKeys ->
+            favoriteKeys.contains(key)
+        }
+
     suspend fun toggleFavorite(key: String) {
         context.favoriteDataStore.edit { preferences ->
             val currentKeys = preferences[favoriteKeys] ?: emptySet()

@@ -17,7 +17,9 @@ import com.sajda.app.feature.quran.FavoriteAyahsScreen
 import com.sajda.app.feature.quran.QuranReaderScreen
 import com.sajda.app.feature.quran.QuranScreen
 import com.sajda.app.feature.settings.SettingsScreen
+import com.sajda.app.feature.today.FavoriteHadithsScreen
 import com.sajda.app.feature.today.HadithDetailScreen
+import com.sajda.app.feature.today.HadithLibraryScreen
 import com.sajda.app.feature.today.TodayScreen
 import com.sajda.app.feature.today.getContentForPrayer
 import java.time.LocalDateTime
@@ -44,8 +46,6 @@ fun AppNavigation() {
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding)
         ) {
-
-
             composable(Routes.FAVORITE_AYAHS) {
                 FavoriteAyahsScreen(
                     onBackClick = {
@@ -74,6 +74,9 @@ fun AppNavigation() {
                     },
                     onDailyHadithClick = {
                         navController.navigate(Routes.HADITH_DETAIL)
+                    },
+                    onHadithLibraryClick = {
+                        navController.navigate(Routes.HADITH_LIBRARY)
                     }
                 )
             }
@@ -127,6 +130,28 @@ fun AppNavigation() {
                     hadith = currentContent.hadith,
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onFavoriteHadithsClick = {
+                        navController.navigate(Routes.FAVORITE_HADITHS)
+                    }
+                )
+            }
+
+            composable(Routes.FAVORITE_HADITHS) {
+                FavoriteHadithsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Routes.HADITH_LIBRARY) {
+                HadithLibraryScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onFavoriteHadithsClick = {
+                        navController.navigate(Routes.FAVORITE_HADITHS)
                     }
                 )
             }

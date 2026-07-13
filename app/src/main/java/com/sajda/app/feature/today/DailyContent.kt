@@ -14,9 +14,12 @@ data class DailyAyah(
 data class DailyHadith(
     val id: Int,
     val arabicText: String?,
-    val text: String,
-    val explanation: String?,
+    val textTr: String,
+    val textEn: String,
+    val explanationTr: String?,
+    val explanationEn: String?,
     val source: String,
+    val topic: String,
     val isFavorite: Boolean = false
 )
 

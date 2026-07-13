@@ -1,7 +1,6 @@
 package com.sajda.app.feature.today
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sajda.app.R
+import com.sajda.app.feature.common.SajdaContentCard
 import com.sajda.app.feature.prayertimes.PrayerName
 import com.sajda.app.feature.prayertimes.findTodayPrayerTimes
 import com.sajda.app.feature.prayertimes.formatDurationAsHourMinute
@@ -37,14 +39,18 @@ import com.sajda.app.feature.prayertimes.getCurrentPrayer
 import com.sajda.app.feature.prayertimes.getRemainingDurationUntilNextPrayer
 import com.sajda.app.feature.prayertimes.toPrayerTimeItems
 import com.sajda.app.feature.prayertimes.toUiLabel
+import com.sajda.app.ui.theme.SajdaColors
+import com.sajda.app.ui.theme.SajdaDimens
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun TodayScreen(
     onDailyAyahClick: (surahNumber: Int, ayahNumber: Int) -> Unit,
-    onDailyHadithClick: () -> Unit
+    onDailyHadithClick: () -> Unit,
+    onHadithLibraryClick: () -> Unit
 ) {
     var now by remember { mutableStateOf(LocalDateTime.now()) }
 
@@ -61,8 +67,9 @@ fun TodayScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAF8))
-            .padding(16.dp)
+            .background(SajdaColors.Background)
+            .verticalScroll(rememberScrollState())
+            .padding(SajdaDimens.ScreenPadding)
     ) {
         Text(
             text = currentClock,
@@ -110,6 +117,11 @@ fun TodayScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+        HadithLibraryCard(
+            onClick = onHadithLibraryClick
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -140,21 +152,21 @@ fun PrayerHeroCard(now: LocalDateTime) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(SajdaDimens.HeroCardRadius),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1F2A24)
+            containerColor = SajdaColors.TextPrimary
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = SajdaDimens.HeroCardElevation)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(SajdaDimens.HeroCardPadding),
             horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
         ) {
             Text(
                 text = activePrayerLabel,
-                color = Color.White,
+                color = SajdaColors.Surface,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -163,7 +175,7 @@ fun PrayerHeroCard(now: LocalDateTime) {
 
             Text(
                 text = stringResource(R.string.next_prayer),
-                color = Color(0xFFBFC8C2),
+                color =  SajdaColors.TextMuted,
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -174,7 +186,7 @@ fun PrayerHeroCard(now: LocalDateTime) {
             ) {
                 Text(
                     text = formattedTime,
-                    color = Color.White,
+                    color = SajdaColors.Surface,
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -194,7 +206,7 @@ fun PrayerHeroCard(now: LocalDateTime) {
 
             HorizontalDivider(
                 thickness = 1.dp,
-                color = Color(0xFF344139)
+                color = SajdaColors.HeroDivider
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -220,102 +232,48 @@ fun AyahCard(
     ayah: DailyAyah,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                onClick = onClick
-            ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.daily_ayah),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1F2A24)
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "${ayah.surahName} ${ayah.ayahNumber}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = ayah.translation,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color(0xFF1F2A24),
-                lineHeight = 26.sp
-            )
-        }
-    }
+    SajdaContentCard(
+        showArrow = true,
+        title = stringResource(R.string.daily_ayah),
+        subtitle = "${ayah.surahName} ${ayah.ayahNumber}",
+        body = ayah.translation,
+        onClick = onClick
+    )
 }
-
+@Composable
+fun HadithLibraryCard(
+    onClick: () -> Unit
+) {
+    SajdaContentCard(
+        title = "Hadisler",
+        subtitle = "Hadis Kütüphanesi",
+        body = "Konu, kaynak ve favorilerine göre hadisleri keşfet.",
+        onClick = onClick
+    )
+}
 @Composable
 fun HadithCard(
     hadith: DailyHadith,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                onClick = onClick
-            ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.daily_hadith),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1F2A24)
-            )
+    val isTurkish = Locale.getDefault().language == "tr"
+    val hadithText = if (isTurkish) hadith.textTr else hadith.textEn
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = hadith.source,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = hadith.text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color(0xFF1F2A24),
-                lineHeight = 26.sp
-            )
-        }
-    }
+    SajdaContentCard(
+        showArrow = true,
+        title = stringResource(R.string.daily_hadith),
+        subtitle = hadith.source,
+        body = hadithText,
+        onClick = onClick
+    )
 }
-
 @Composable
 fun PrayerTimeItem(
     name: String,
     time: String,
     isActive: Boolean
 ) {
-    val textColor = if (isActive) Color(0xFF7DD3A7) else Color.White
+    val textColor = if (isActive) SajdaColors.AccentGreen else SajdaColors.Surface
 
     Column {
         Text(

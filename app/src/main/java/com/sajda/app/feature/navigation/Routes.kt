@@ -9,6 +9,8 @@ object Routes {
     const val SETTINGS = "settings"
 
     const val HADITH_DETAIL = "hadith_detail"
+    const val FAVORITE_HADITHS = "favorite_hadiths"
+    const val HADITH_LIBRARY = "hadith_library"
 
     const val QURAN_READER = "quran_reader/{surahNumber}/{ayahNumber}"
 

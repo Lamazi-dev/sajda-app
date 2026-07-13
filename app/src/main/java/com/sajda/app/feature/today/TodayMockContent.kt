@@ -1,6 +1,7 @@
 package com.sajda.app.feature.today
 
 import com.sajda.app.feature.prayertimes.PrayerName
+import com.sajda.app.feature.today.data.HadithRepository
 
 val dailyAyahPool = listOf(
     DailyAyah(
@@ -27,13 +28,7 @@ val dailyAyahPool = listOf(
 
 val mockDailyContent = DailyContent(
     ayah = dailyAyahPool.random(),
-    hadith = DailyHadith(
-        arabicText = null,
-        id = 1,
-        text = "The best among you are those who have the best manners.",
-        explanation = "Islam gives strong importance to character, kindness, and good treatment of others.",
-        source = "Sahih al-Bukhari"
-    )
+    hadith = HadithRepository.getDailyHadith()
 )
 
 val fajrContent = mockDailyContent

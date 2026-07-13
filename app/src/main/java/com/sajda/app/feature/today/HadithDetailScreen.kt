@@ -46,15 +46,20 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import java.util.Locale
 @Composable
 fun HadithDetailScreen(
     hadith: DailyHadith,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onFavoriteHadithsClick: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val favoritePreferences = remember { FavoritePreferences(context) }
     val hadithKey = FavoriteKeys.hadithKey(hadith.id)
+    val isTurkish = Locale.getDefault().language == "tr"
+    val hadithText = if (isTurkish) hadith.textTr else hadith.textEn
+    val hadithExplanation = if (isTurkish) hadith.explanationTr else hadith.explanationEn
 
     var isFavorite by remember(hadithKey) {
         mutableStateOf(false)
@@ -184,6 +189,7 @@ fun HadithDetailScreen(
                         },
                         onClick = {
                             menuExpanded = false
+                            onFavoriteHadithsClick()
                         }
                     )
                 }
@@ -223,13 +229,13 @@ fun HadithDetailScreen(
                 }
 
                 Text(
-                    text = hadith.text,
+                    text = hadithText,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFF1F2A24),
                     lineHeight = 30.sp
                 )
 
-                hadith.explanation?.let { explanation ->
+                hadithExplanation?.let { explanation ->
                     Text(
                         text = explanation,
                         style = MaterialTheme.typography.bodyMedium,
@@ -245,8 +251,11 @@ fun HadithDetailScreen(
 private const val SHARE_BRANDING = "via Sajda App"
 
 private fun buildHadithShareText(hadith: DailyHadith): String {
+    val isTurkish = Locale.getDefault().language == "tr"
+    val hadithText = if (isTurkish) hadith.textTr else hadith.textEn
+
     return buildString {
-        appendLine(hadith.text)
+        appendLine(hadithText)
         appendLine()
         appendLine("— ${hadith.source}")
         appendLine(SHARE_BRANDING)
